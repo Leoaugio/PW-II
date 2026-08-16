@@ -2,13 +2,7 @@
 
 session_start();
 
-require_once 'classes/Carteira.php';
-
-if (!isset($_SESSION['carteira'])) {
-    $_SESSION['carteira'] = serialize(new Carteira());
-}
-
-$carteira = unserialize($_SESSION['carteira']);
+require_once 'Conexão.php';
 
 try {
 
@@ -17,24 +11,21 @@ try {
     $descricao = $_POST['descricao'];
     $data = $_POST['data'];
 
-    if ($tipo === 'receita') {
+    $sql = "INSERT INTO transacoes 
+            (descricao, valor, tipo, data_transacao)
+            VALUES (?, ?, ?, ?)";
 
-        $transacao = new Receita(
-            $valor,
-            $descricao,
-            $data
-        );
+    $stmt = $conn->prepare($sql);
 
-    } else {
+    $stmt->bind_param(
+        "sdss",
+        $descricao,
+        $valor,
+        $tipo,
+        $data
+    );
 
-        $transacao = new Despesa(
-            $valor,
-            $descricao,
-            $data
-        );
-    }
-
-    $carteira->adicionarTransacao($transacao);
+    $stmt->execute();
 
     $_SESSION['mensagem'] =
         "Transação cadastrada com sucesso!";
@@ -45,7 +36,5 @@ try {
         $e->getMessage();
 }
 
-$_SESSION['carteira'] = serialize($carteira);
-
-header("Location: index.php");
+header("Location: Index.php");
 exit;

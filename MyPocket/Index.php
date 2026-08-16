@@ -2,13 +2,17 @@
 
 session_start();
 
-require_once 'classes/Carteira.php';
+require_once 'Conexão.php';
 
-if (!isset($_SESSION['carteira'])) {
-    $_SESSION['carteira'] = serialize(new Carteira());
+$sql = "SELECT * FROM transacoes ORDER BY data_transacao DESC";
+
+$resultado = $conn->query($sql);
+
+$transacoes = [];
+
+while ($transacao = $resultado->fetch_assoc()) {
+    $transacoes[] = $transacao;
 }
-
-$carteira = unserialize($_SESSION['carteira']);
 ?>
 
 <!DOCTYPE html>
@@ -30,11 +34,26 @@ rel="stylesheet">
 
 <h1>MyPocket</h1>
 
+<?php
+
+$saldo = 0;
+
+foreach ($transacoes as $transacao) {
+
+    if ($transacao['tipo'] === 'receita') {
+        $saldo += $transacao['valor'];
+    } else {
+        $saldo -= $transacao['valor'];
+    }
+
+}
+?>
+
 <h3>
 Saldo:
 R$
 <?= number_format(
-    $carteira->getSaldo(),
+    $saldo,
     2,
     ',',
     '.'
@@ -116,19 +135,20 @@ Cadastrar
 <th>Descrição</th>
 <th>Tipo</th>
 <th>Valor</th>
+<th>Ações</th>
 </tr>
 
-<?php foreach($carteira->getTransacoes() as $t): ?>
+<?php foreach($transacoes as $t): ?>
 
 <tr>
 
-<td><?= $t->getData() ?></td>
+<td><?= $t['data_transacao'] ?></td>
 
-<td><?= $t->getDescricao() ?></td>
+<td><?= $t['descricao'] ?></td>
 
 <td>
 
-<?php if($t->getTipo() === 'Entrada'): ?>
+<?php if($t['tipo'] === 'receita'): ?>
 
 <span class="badge bg-success">
 Entrada
@@ -148,11 +168,27 @@ Saída
 
 R$
 <?= number_format(
-    $t->getValor(),
+    $t['valor'],
     2,
     ',',
     '.'
 ) ?>
+
+</td>
+
+<td>
+
+<a
+href="editar.php?id=<?= $t['id'] ?>"
+class="btn btn-warning btn-sm">
+Editar
+</a>
+
+<a
+href="excluir.php?id=<?= $t['id'] ?>"
+class="btn btn-danger btn-sm">
+Excluir
+</a>
 
 </td>
 
