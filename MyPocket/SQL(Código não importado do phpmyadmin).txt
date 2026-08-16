@@ -1,0 +1,20 @@
+CREATE DATABASE mypocket;
+
+USE mypocket;
+
+CREATE TABLE transacoes (
+    id INT NOT NULL AUTO_INCREMENT,
+    descricao VARCHAR(100) NOT NULL,
+    valor DECIMAL(10,2) NOT NULL,
+    tipo VARCHAR(20) NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    data_transacao DATE NOT NULL,
+    PRIMARY KEY (id)
+);
+
+INSERT INTO transacoes
+(descricao, valor, tipo, categoria, data_transacao)
+VALUES
+('Salário', 1500.00, 'receita', 'Trabalho', '2026-08-16'),
+('Lanche', 25.00, 'despesa', 'Alimentação', '2026-08-16'),
+('Ônibus', 5.00, 'despesa', 'Transporte', '2026-08-16');
